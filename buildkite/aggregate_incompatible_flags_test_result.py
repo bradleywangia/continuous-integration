@@ -87,19 +87,17 @@ def print_already_fail_jobs(already_failing_jobs):
 
 def print_projects_need_to_migrate(failed_jobs_per_flag):
     info_text = ["#### The following projects need migration"]
-    jobs_need_migration = set()
+    jobs_need_migration = {}
     for jobs in failed_jobs_per_flag.values():
         for job in jobs.values():
-            jobs_need_migration.add((job["name"], job["web_url"]))
+            jobs_need_migration[job["name"]] = job
 
-    job_list = list(jobs_need_migration)
-    job_list = sorted(job_list, key=lambda s: s[0].lower())
-
+    job_list = [i[1] for i in sorted(jobs_need_migration.items(), key=lambda s: s[0].lower())]
     job_num = len(job_list)
-
-    entries = merge_and_format_jobs(jobs, "    <li><strong>{}</strong>: {}</li>")
-    if not entries:
+    if job_num == 0:
         return
+
+    entries = merge_and_format_jobs(job_list, "    <li><strong>{}</strong>: {}</li>")
 
     s = "" if job_num == 1 else "s"
     info_text.append(
