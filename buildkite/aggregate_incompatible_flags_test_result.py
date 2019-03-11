@@ -79,7 +79,7 @@ def print_flags_ready_to_flip(failed_jobs_per_flag):
 
 def print_already_fail_jobs(already_failing_jobs):
     info_text = ["#### The following jobs already fail without incompatible flags"]
-    info_text += merge_and_format_jobs(already_failing_jobs, "* ")
+    info_text += merge_and_format_jobs(already_failing_jobs, "* **{}**: {}")
     if len(info_text) == 1:
         return
     print_info("already_fail_jobs", "warning", info_text)
@@ -97,7 +97,7 @@ def print_projects_need_to_migrate(failed_jobs_per_flag):
 
     job_num = len(job_list)
 
-    entries = ["    <li>{}</li>".format(get_html_link_text(name, web_url)) for name, web_url in job_list]
+    entries = merge_and_format_jobs(jobs, "    <li><strong>{}</strong>: {}</li>")
     if not entries:
         return
 
@@ -127,13 +127,13 @@ def print_flags_need_to_migrate(failed_jobs_per_flag):
         if jobs:
             github_url = INCOMPATIBLE_FLAGS[flag]
             info_text.append(f"* **{flag}** " + get_html_link_text(":github:", github_url))
-            info_text += merge_and_format_jobs(jobs.values(), "  - ")
+            info_text += merge_and_format_jobs(jobs.values(), "  - **{}**: {}")
     if len(info_text) == 1:
         return
     print_info("flags_need_to_migrate", "error", info_text)
 
 
-def merge_and_format_jobs(jobs, line_prefix):
+def merge_and_format_jobs(jobs, line_pattern):
     # Merges all jobs for a single pipeline into one line.
     # Example:
     #   pipeline (platform1)
@@ -146,7 +146,7 @@ def merge_and_format_jobs(jobs, line_prefix):
         pipeline, platform = get_pipeline_and_platform(job)
         jobs_per_pipeline[pipeline].append(get_html_link_text(platform, job["web_url"]))
 
-    return ["{}**{}**: {}".format(line_prefix, pipeline, ", ".join(platforms)) for pipeline, platforms in jobs_per_pipeline.items()]
+    return [line_pattern.format(line_prefix, pipeline, ", ".join(platforms)) for pipeline, platforms in jobs_per_pipeline.items()]
 
 
 def get_pipeline_and_platform(job):
