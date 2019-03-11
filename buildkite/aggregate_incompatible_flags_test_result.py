@@ -139,14 +139,14 @@ def merge_and_format_jobs(jobs, line_pattern):
     #   pipeline (platform1)
     #   pipeline (platform2)
     #   pipeline (platform3)
-    # with line_prefix ">> " becomes
+    # with line_pattern ">> {}: {}" becomes
     #   >> pipeline: platform1, platform2, platform3
     jobs_per_pipeline = collections.defaultdict(list)
     for job in jobs:
         pipeline, platform = get_pipeline_and_platform(job)
         jobs_per_pipeline[pipeline].append(get_html_link_text(platform, job["web_url"]))
 
-    return [line_pattern.format(line_prefix, pipeline, ", ".join(platforms)) for pipeline, platforms in jobs_per_pipeline.items()]
+    return [line_pattern.format(pipeline, ", ".join(platforms)) for pipeline, platforms in jobs_per_pipeline.items()]
 
 
 def get_pipeline_and_platform(job):
